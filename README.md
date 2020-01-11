@@ -100,3 +100,5 @@ Parameters `filterBy` and `sortBy` has format ***property1Name=property1Value,..
 Run the [following project](https://github.com/hrishynpavlo/LinqManager/tree/master/BookStore), create couple of authors and books. Try to do GET request  with filterting and sorting parameters. You should get something like this.
 
 ![swagger example](https://github.com/hrishynpavlo/LinqManager/blob/master/img/swagger_example_1.jpg)
+
+Also you can make a pull request to improve this project.
