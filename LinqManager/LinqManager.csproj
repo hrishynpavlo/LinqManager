@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <SignAssembly>false</SignAssembly>
+    <AssemblyOriginatorKeyFile>linqmanager.pfx</AssemblyOriginatorKeyFile>
+    <DelaySign>false</DelaySign>
+    <Authors>Pavlo Hrishyn</Authors>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="C:\Users\user\.nuget\packages\microsoft.net.compilers\1.0.0\build\..\tools\**" />
+  </ItemGroup>
+
+</Project>
