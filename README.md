@@ -23,6 +23,10 @@ Add Linq Manager as services in **Startup.cs**
 services.AddLinqManager();
 ```
 
+Create db and dto models. We will use **DtoMap** attribute to define methods and property name of db model. The list of supported methods you can find [here](https://github.com/hrishynpavlo/LinqManager/blob/master/LinqManager/Enums/FilterMethods.cs). The second parameter (db property name) is optional for case when dto property name equals db property name. 
+
+Characters "`.`" and "`:`" are using for calling inner properties. `.` is for inner properties and `:` is for inner lambda parameter.
+
 **Db Author Model**
 ```cs
 public class Author
@@ -65,3 +69,34 @@ public class AuthorDto
         public List<DropDown<int>> Books { get; set; } = new List<DropDown<int>>();
     }
 ```
+
+Linq Manager gets **LinqProccesRequest** parameter that contains data for filtering, sorting, pagination. [Here](https://github.com/hrishynpavlo/LinqManager/tree/master/LinqManager/Factories) provided factories class and default it's implementation.
+
+```cs
+private readonly LinqManager.LinqManager _linqManager;
+...
+public async Task<QueryPagedModel<Author>> GetAllAsync(LinqProccesRequest request)
+        {
+            var items = await _linqManager.ProcessAsync<Author, AuthorDto>(_db.Authors, request);
+            var result = new QueryPagedModel<Author>(items.Query, items.Count);
+
+            return result;
+        }
+```
+
+Look at service which calls **GetAllAsync(...)** method.
+
+```cs
+public async Task<ObjectPagedModel<AuthorDto>> GetAllAsync(string filterBy, string sortBy)
+        {
+            var request = new DefaultRequestFactory(filterBy, sortBy, 1, 10).CreateRequest();
+            var query = await _unitOfWork.Authors.GetAllAsync(request);
+            return new ObjectPagedModel<AuthorDto>(await query.Items.ProjectTo<AuthorDto>(_mapper.ConfigurationProvider).ToListAsync(), query.Count);
+        }
+```
+
+Parameters `filterBy` and `sortBy` has format ***propertyName=propertyValue*** (in case sort it's =true or =false for descending).
+
+Run the [following project](https://github.com/hrishynpavlo/LinqManager/tree/master/BookStore), create couple of authors and books. Try to do GET request  with filterting and sorting parameters. You should get something like this.
+
+![]()
