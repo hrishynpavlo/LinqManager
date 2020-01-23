@@ -34,6 +34,7 @@ namespace BookStore
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddCors();
             services.AddControllers();
             services.AddDbContext<ApplicationDbContext>(options => 
                 options.UseSqlServer("Data Source=localhost\\SQLEXPRESS;Initial Catalog=BookStore;Integrated Security=True"));
@@ -66,6 +67,9 @@ namespace BookStore
             app.UseSwaggerUI(s => {
                 s.SwaggerEndpoint("/swagger/v1/swagger.json", "BookStore API");
             });
+
+            app.UseCors(builder => builder.AllowAnyOrigin()
+                .WithHeaders("Content-Type", "Accept", "Authorization").WithMethods("GET", "POST", "PATCH", "PUT", "DELETE"));
 
             app.UseExceptionHandler(app => app.Run(async context => {
                 var exceptionContext = context.Features.Get<IExceptionHandlerFeature>();

@@ -8,6 +8,9 @@
     <AssemblyOriginatorKeyFile>linqmanager.pfx</AssemblyOriginatorKeyFile>
     <DelaySign>false</DelaySign>
     <Authors>Pavlo Hrishyn</Authors>
+    <Description>Please see an example and documentation
+https://github.com/hrishynpavlo/LinqManager</Description>
+    <Version>1.0.1</Version>
   </PropertyGroup>
 
   <ItemGroup>

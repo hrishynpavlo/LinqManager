@@ -1,10 +1,12 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netstandard2.1</TargetFramework>
     <Authors>Pavlo Hrishyn</Authors>
-    <Description>Linq Manager extensions  for Entity Framework Core 3.0</Description>
+    <Description>Linq Manager extensions  for Entity Framework Core 3.0
+https://github.com/hrishynpavlo/LinqManager</Description>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Version>1.0.1</Version>
   </PropertyGroup>
 
   <ItemGroup>
