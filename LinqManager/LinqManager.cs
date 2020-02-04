@@ -109,15 +109,14 @@ namespace LinqManager
                 source = source.OrderBy(o => 0);
                 foreach(var sortProperty in sortBy)
                 {
-                    var mapping = typeof(DtoType)
-                        .GetProperty(sortProperty.PropertyName, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance)
-                        .GetCustomAttribute<DtoMapAttribute>(false);
+                    var mapping = _cache.GetMapping<DtoType>()
+                        .FirstOrDefault(p => string.Equals(p.DtoPropertyName, sortProperty.PropertyName, StringComparison.OrdinalIgnoreCase));
 
                     if (mapping == null)
                         throw new ArgumentNullException(nameof(mapping));
 
                     var param = CreateParam(typeof(DbType), "item");
-                    var property = CreateProperty(param, sortProperty.PropertyName);
+                    var property = CreateProperty(param, mapping.DbPropertyName ?? sortProperty.PropertyName);
                     var lambda = Expression.Lambda<Func<DbType, object>>(Expression.Convert(property, typeof(object)), param);
 
                     if (sortProperty.PropertyValue)
