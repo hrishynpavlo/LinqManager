@@ -7,11 +7,12 @@
     <Description>Linq Manager extensions for asp.net applications
 https://github.com/hrishynpavlo/LinqManager</Description>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>1.0.1</Version>
+    <Version>1.0.5</Version>
+    <PackageProjectUrl>https://github.com/hrishynpavlo/LinqManager</PackageProjectUrl>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="LinqManager" Version="1.0.0" />
+    <PackageReference Include="LinqManager" Version="1.0.5" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="3.0.0" />
   </ItemGroup>
 

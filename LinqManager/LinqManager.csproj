@@ -9,9 +9,9 @@
     <DelaySign>false</DelaySign>
     <Authors>Pavlo Hrishyn</Authors>
     <Description>Package that helps to build linq expression dynamically using mapping between db and dto models.</Description>
-    <Version>1.0.3</Version>
+    <Version>1.0.5</Version>
     <RepositoryUrl>https://github.com/hrishynpavlo/LinqManager</RepositoryUrl>
-    <PackageReleaseNotes></PackageReleaseNotes>
+    <PackageReleaseNotes>fixed feature to logical operator filter</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>

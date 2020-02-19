@@ -1,4 +1,5 @@
 ﻿using LinqManager.Attributes;
+using LinqManager.Core;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -38,7 +39,7 @@ namespace LinqManager
             var props = attribute.DbPropertyName?.Split(':') ?? new string[0];
 
             return new Mapping { DbPropertyName = props.Count() > 0 ? props[0] : property.Name, FilterMethod = attribute.FilterMethod, 
-                 DtoPropertyName = property.Name, DbCollectionPropertyName = props.Count() > 1 ? props[1] : string.Empty };
+                 DtoPropertyName = property.Name, DbCollectionPropertyName = props.Count() > 1 ? props[1] : string.Empty, LogicalOperator = attribute.LogicalOperator };
         }
     }
 }

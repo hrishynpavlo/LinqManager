@@ -1,6 +1,6 @@
 ﻿using LinqManager.Enums;
 
-namespace LinqManager
+namespace LinqManager.Core
 {
     class Mapping
     {
@@ -8,5 +8,6 @@ namespace LinqManager
         public string DbPropertyName { get; set; }
         public string DbCollectionPropertyName { get; set; }
         public FilterMethods FilterMethod { get; set; }
+        public LogicalOperator LogicalOperator { get; set; }
     }
 }

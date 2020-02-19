@@ -1,5 +1,4 @@
-﻿using LinqManager.Attributes;
-using LinqManager.Enums;
+﻿using LinqManager.Enums;
 using LinqManager.Exceptions;
 using System;
 using System.Collections.Generic;
@@ -8,6 +7,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using LinqManager.Constants;
 using System.Runtime.CompilerServices;
+using LinqManager.Core;
 
 [assembly: InternalsVisibleTo("LinqManager.EFCoreExtensions, PublicKey=002400000480000094000000060200000024000052534131000400000100010095871e91babb4eeda97c9d1ab742dcfefbcccd4bf494171aefb664ebed3eaea278bde0101da0fced3de80efe591bb4b592f4476e8d39ba700c2327382a50a87ee4a76c40dc7cb2f162d73a5da487e3ec82aa8a4a5d12cccd0d031ca375fbba658f4f1fbd0ca9642cc1cc9d294b51b918b0d35e1f281368ae25aabd66085923f4")]
 namespace LinqManager
@@ -60,10 +60,11 @@ namespace LinqManager
 
             try
             {
-                foreach(var filterProperty in filterBy)
+                var filtersDicationary = filterBy.GroupBy(g => g.PropertyName);
+                foreach(var filterProperty in filtersDicationary)
                 {
                     var mapping = _cache.GetMapping<DtoType>()
-                        .FirstOrDefault(p => string.Equals(p.DtoPropertyName, filterProperty.PropertyName, StringComparison.OrdinalIgnoreCase));
+                        .FirstOrDefault(p => string.Equals(p.DtoPropertyName, filterProperty.Key, StringComparison.OrdinalIgnoreCase));
 
                     if (mapping == null)
                         throw new ArgumentNullException(nameof(mapping));
@@ -71,24 +72,38 @@ namespace LinqManager
                     if (mapping.FilterMethod == FilterMethods.OnlySortable)
                         continue;
 
-                    var filterValues = filterProperty.PropertyValue.Split(new[] { SpecialCharacters.RangeSplitter }, StringSplitOptions.None);
-                    short index = 0;
+                    var param = CreateParam(typeof(DbType), "item");
 
-                    foreach (var filterValue in filterValues)
+                    var propertyLambdaContainer = new List<Expression<Func<DbType, bool>>>();
+
+                    foreach(var groupValue in filterProperty.Select(s => s.PropertyValue))
                     {
-                        var param = CreateParam(typeof(DbType), "item");
-                        var property = CreateProperty(param, mapping.DbPropertyName ?? filterProperty.PropertyName);
-                        var value = CreateValue(property.Type, filterValue);
+                        var filterValues = groupValue.Split(new[] { SpecialCharacters.RangeSplitter }, StringSplitOptions.None);
+                        short index = 0;
 
-                        var method = mapping.FilterMethod == FilterMethods.Range ? 
-                                index == 0 ? FilterMethods.GreaterThanOrEqual : FilterMethods.LessThanOrEqual 
-                            : mapping.FilterMethod;
+                        var rangeLambdaContainer = new List<Expression<Func<DbType, bool>>>();
 
-                        var lambda = CreateLambda<DbType, DtoType>(param, property, value, method);
+                        foreach (var filterValue in filterValues)
+                        {
+                            var property = CreateProperty(param, mapping.DbPropertyName ?? filterProperty.Key);
+                            var value = CreateValue(property.Type, filterValue);
 
-                        source = source.Where(lambda);
-                        index++;
+                            var method = mapping.FilterMethod == FilterMethods.Range ?
+                                    index == 0 ? FilterMethods.GreaterThanOrEqual : FilterMethods.LessThanOrEqual
+                                : mapping.FilterMethod;
+
+                            var lambda = CreateLambda<DbType, DtoType>(param, property, value, method);
+                            rangeLambdaContainer.Add(lambda);
+
+                            index++;
+                        }
+
+                        var rangeLabmda = BuildLambda(LogicalOperator.And, rangeLambdaContainer, param);
+                        propertyLambdaContainer.Add(rangeLabmda);
                     }
+
+                    var finalLambda = BuildLambda(mapping.LogicalOperator, propertyLambdaContainer, param);
+                    source = source.Where(finalLambda);
                 }
 
                 return source;
@@ -241,6 +256,35 @@ namespace LinqManager
             }
 
             return lambda;
+        }
+
+        private Expression<Func<DbType, bool>> BuildLambda<DbType>(LogicalOperator logicalOperator, List<Expression<Func<DbType, bool>>> expressionsContainer, ParameterExpression parameter)
+        {
+            if (!expressionsContainer.Any())
+                throw new ArgumentNullException(nameof(expressionsContainer));
+
+            if (expressionsContainer.Count() == 1)
+                return expressionsContainer.FirstOrDefault();
+
+            Expression<Func<DbType, bool>> result = expressionsContainer.FirstOrDefault();
+
+            foreach(var expression in expressionsContainer.Skip(1))
+            {
+                BinaryExpression body = null;
+                switch (logicalOperator)
+                {
+                    case LogicalOperator.And:
+                        body = Expression.AndAlso(result.Body, expression.Body);
+                        break;
+                    case LogicalOperator.Or:
+                        body = Expression.OrElse(result.Body, expression.Body);
+                        break;
+                }
+
+                result = Expression.Lambda<Func<DbType, bool>>(body, parameter);
+            }
+
+            return result;
         }
         #endregion
     }
